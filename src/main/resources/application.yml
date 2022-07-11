@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: blog-app
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/blog_app?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC}
+    username: ${DB_USER}
+    password: ${DB_PASS}
+  jpa:
+    properties:
+      hibernate:
+        ddl-auto: update
+    generate-ddl: true
+  sql:
+    init:
+      mode: always
+logging:
+  pattern:
+    console: "%clr(%red(%d{ISO08601}) | %highlight(%-5level) | %boldYellow(${PID} --- %thread) | %green(${spring.application.name}) | %magenta(%logger{5}) | %msg %n)"
+  level:
+    org.springframework: off
+    org.hibernate: off
+    com.zaxxer: off
+    com.codewithevans: [ DEBUG, ERROR, WARN, INFO ]
+springdoc:
+  swagger-ui:
+    tags-sorter: alpha
+    operations-sorter: alpha
+  writer-with-order-by-keys: true
