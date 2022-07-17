@@ -32,7 +32,7 @@ data class Comment(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    var user: User? = null
+    var user: BlogUser? = null
 ) {
     @PrePersist
     fun createdAtValue() {

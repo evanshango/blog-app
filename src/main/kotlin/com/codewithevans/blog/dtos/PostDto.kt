@@ -1,7 +1,7 @@
 package com.codewithevans.blog.dtos
 
+import com.codewithevans.blog.entities.BlogUser
 import com.codewithevans.blog.entities.Post
-import com.codewithevans.blog.entities.User
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING
 import com.fasterxml.jackson.annotation.JsonInclude
@@ -28,7 +28,7 @@ fun PostDto.toPost(): Post {
         title = title,
         slug = slug,
         content = content,
-        user = User(
+        user = BlogUser(
             id = UUID.fromString(author?.id),
             firstName = author!!.firstName,
             lastName = author.lastName,

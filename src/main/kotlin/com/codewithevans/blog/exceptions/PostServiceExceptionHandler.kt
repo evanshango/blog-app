@@ -27,6 +27,13 @@ class PostServiceExceptionHandler {
         return ResponseEntity(errorDto, CONFLICT)
     }
 
+    @ExceptionHandler(Unauthorized::class)
+    fun handleResourceExists(e: Unauthorized): ResponseEntity<ErrorDto> {
+        logger.warn("${e.message} | ${UNAUTHORIZED.value()}")
+        val errorDto = ErrorDto(UNAUTHORIZED.name, e.message, LocalDateTime.now())
+        return ResponseEntity(errorDto, UNAUTHORIZED)
+    }
+
     @ExceptionHandler(InternalError::class)
     fun handleInternalError(e: InternalError): ResponseEntity<ErrorDto>{
         logger.error("${e.message} | ${INTERNAL_SERVER_ERROR.value()}")

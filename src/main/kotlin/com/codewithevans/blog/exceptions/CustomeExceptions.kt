@@ -1,5 +1,8 @@
 package com.codewithevans.blog.exceptions
 
-class ResourceNotFound(message: String): RuntimeException(message)
+import org.springframework.security.core.AuthenticationException
 
-class ResourceExists(message: String): RuntimeException(message)
+class ResourceNotFound(message: String) : RuntimeException(message)
+class ResourceExists(message: String) : RuntimeException(message)
+class Unauthorized(message: String) : RuntimeException(message)
+class InvalidBearerToken(message: String?) : AuthenticationException(message)

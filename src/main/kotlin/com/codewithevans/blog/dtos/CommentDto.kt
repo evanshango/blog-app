@@ -1,7 +1,7 @@
 package com.codewithevans.blog.dtos
 
+import com.codewithevans.blog.entities.BlogUser
 import com.codewithevans.blog.entities.Comment
-import com.codewithevans.blog.entities.User
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonInclude
 import java.time.LocalDateTime
@@ -22,7 +22,7 @@ fun CommentDto.toComment(): Comment {
     return Comment(
         id = UUID.fromString(id),
         comment = comment,
-        user = User(
+        user = BlogUser(
             id = UUID.fromString(author?.id),
             firstName = author!!.firstName,
             lastName = author!!.lastName,

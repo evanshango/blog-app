@@ -6,7 +6,6 @@ import org.hibernate.annotations.Type
 import java.time.LocalDateTime
 import java.util.*
 import javax.persistence.*
-import kotlin.collections.HashSet
 
 @Entity
 @Table(
@@ -14,7 +13,7 @@ import kotlin.collections.HashSet
     indexes = [Index(name = "user_indices", columnList = "firstName, lastName, email, createdAt, updatedAt")],
     uniqueConstraints = [UniqueConstraint(columnNames = ["email"])]
 )
-data class User(
+data class BlogUser(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
@@ -29,12 +28,12 @@ data class User(
     var email: String,
     var emailConfirmed: Boolean? = false,
     var enableNotifications: Boolean? = false,
-    var image: String? = null,
     @Column(nullable = false)
     var password: String? = null,
     @Column(nullable = false)
     var createdAt: LocalDateTime? = null,
     var updatedAt: LocalDateTime? = null,
+    var passwordExpiry: LocalDateTime? = null,
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     @JoinTable(
@@ -42,18 +41,18 @@ data class User(
         joinColumns = [JoinColumn(name = "user_id", referencedColumnName = "id")],
         inverseJoinColumns = [JoinColumn(name = "role_id", referencedColumnName = "id")]
     )
-    var roles: Set<Role> = HashSet(),
+    var roles: Set<Role>? = HashSet(),
 
     @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
     @JsonIgnore
-    var posts: Set<Post> = HashSet(),
+    var posts: Set<Post>? = HashSet(),
 
     @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
     @JsonIgnore
-    var comments: Set<Comment> = HashSet()
-){
+    var comments: Set<Comment>? = HashSet()
+) {
     @PrePersist
-    fun generateCreatedAtValue(){
+    fun generateCreatedAtValue() {
         this.createdAt = LocalDateTime.now()
     }
 }

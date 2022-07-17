@@ -8,7 +8,6 @@ import org.hibernate.annotations.Type
 import java.time.LocalDateTime
 import java.util.*
 import javax.persistence.*
-import kotlin.collections.HashSet
 
 @Entity
 @Table(
@@ -36,7 +35,7 @@ data class Post(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    var user: User? = null,
+    var user: BlogUser? = null,
 
     @OneToMany(mappedBy = "post", cascade = [CascadeType.ALL], orphanRemoval = true)
     @JsonIgnore
