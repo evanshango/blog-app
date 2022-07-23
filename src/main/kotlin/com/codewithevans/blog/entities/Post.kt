@@ -1,7 +1,5 @@
 package com.codewithevans.blog.entities
 
-import com.codewithevans.blog.dtos.AuthorDto
-import com.codewithevans.blog.dtos.PostDto
 import com.fasterxml.jackson.annotation.JsonIgnore
 import org.hibernate.annotations.GenericGenerator
 import org.hibernate.annotations.Type
@@ -35,9 +33,9 @@ data class Post(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    var user: BlogUser? = null,
+    var user: User? = null,
 
-    @OneToMany(mappedBy = "post", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OneToMany(mappedBy = "post", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonIgnore
     var comments: Set<Comment> = HashSet()
 ){
@@ -46,21 +44,4 @@ data class Post(
         this.slug = title.lowercase().replace(" ", "-")
         this.createdAt = LocalDateTime.now()
     }
-}
-
-fun Post.toPostDto(): PostDto {
-    return PostDto(
-        id = id.toString(),
-        title = title,
-        slug = slug ?: "no_slug",
-        content = content,
-        author = AuthorDto(
-            id = "1234",
-            firstName = "Test",
-            lastName = "User",
-            email = "test@user.com"
-        ),
-        createdAt = createdAt,
-        updatedAt = updatedAt
-    )
 }

@@ -1,9 +1,11 @@
 package com.codewithevans.blog.security
 
-import com.codewithevans.blog.entities.BlogUser
+import com.codewithevans.blog.entities.User
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
+import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.time.temporal.ChronoUnit.MINUTES
@@ -14,7 +16,7 @@ class JwtService(
     @Value("\${app.jwt-secret}") val jwtSecret: String,
     @Value("\${app.expires-in}") val expiresIn: Long
 ) {
-    fun generateToken(user: BlogUser): TokenProvider {
+    fun generateToken(user: User): TokenProvider {
         val claims: MutableMap<String, Any> = HashMap()
 
         claims["roles"] =  user.roles?.map { it.name }?.toList() ?: listOf<String>()
@@ -29,7 +31,11 @@ class JwtService(
         return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(provider.token).body.subject
     }
 
-    fun isValid(provider: TokenProvider, user: BlogUser?): Boolean {
+    suspend fun getUsernameOrEmail(): String {
+        return ReactiveSecurityContextHolder.getContext().awaitSingle().authentication.principal.toString()
+    }
+
+    fun isValid(provider: TokenProvider, user: User?): Boolean {
         val claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(provider.token).body
         val unexpired = claims.expiration.after(Date.from(Instant.now()))
         return unexpired && (claims.subject == user?.email)

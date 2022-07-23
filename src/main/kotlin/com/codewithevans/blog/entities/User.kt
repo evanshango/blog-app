@@ -13,7 +13,7 @@ import javax.persistence.*
     indexes = [Index(name = "user_indices", columnList = "firstName, lastName, email, createdAt, updatedAt")],
     uniqueConstraints = [UniqueConstraint(columnNames = ["email"])]
 )
-data class BlogUser(
+data class User(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
@@ -35,7 +35,7 @@ data class BlogUser(
     var updatedAt: LocalDateTime? = null,
     var passwordExpiry: LocalDateTime? = null,
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
+    @ManyToMany(fetch = FetchType.EAGER, cascade = [CascadeType.MERGE])
     @JoinTable(
         name = "user_roles",
         joinColumns = [JoinColumn(name = "user_id", referencedColumnName = "id")],

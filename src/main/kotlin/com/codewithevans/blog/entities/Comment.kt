@@ -1,7 +1,5 @@
 package com.codewithevans.blog.entities
 
-import com.codewithevans.blog.dtos.AuthorDto
-import com.codewithevans.blog.dtos.CommentDto
 import org.hibernate.annotations.GenericGenerator
 import org.hibernate.annotations.Type
 import java.time.LocalDateTime
@@ -32,25 +30,10 @@ data class Comment(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    var user: BlogUser? = null
+    var user: User? = null
 ) {
     @PrePersist
     fun createdAtValue() {
         this.createdAt = LocalDateTime.now()
     }
-}
-
-fun Comment.toCommentDto(): CommentDto {
-    return CommentDto(
-        id = id.toString(),
-        comment = comment,
-        author = AuthorDto(
-            id = user!!.id.toString(),
-            firstName = user!!.firstName,
-            lastName = user!!.lastName,
-            email = user!!.email
-        ),
-        createdAt = createdAt,
-        updatedAt = updatedAt
-    )
 }

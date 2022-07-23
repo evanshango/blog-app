@@ -29,15 +29,16 @@ class JwtAuthManager(
         val username = jwtService.getUsername(provider)
         val user = withContext(Dispatchers.IO) { userRepository.findByEmailIgnoreCase(username) }
 
-        user?.let {
-            if (jwtService.isValid(provider, it)) {
+        if (user != null) {
+            if (jwtService.isValid(provider, user)) {
                 val roles = user.roles ?: HashSet()
-                return@let UsernamePasswordAuthenticationToken(username, user.password, mapRolesToAuthority(roles))
+                return UsernamePasswordAuthenticationToken(username, user.password, mapRolesToAuthority(roles))
             } else {
                 throw IllegalArgumentException("Token provided is not valid.")
             }
+        } else {
+            throw UsernameNotFoundException("User with email $username not found")
         }
-        throw UsernameNotFoundException("User with email $username not found")
     }
 
     private fun mapRolesToAuthority(roles: Set<Role>): Collection<GrantedAuthority?>? {

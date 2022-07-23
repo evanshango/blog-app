@@ -14,12 +14,12 @@ import kotlinx.coroutines.reactor.mono
 import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
-import javax.validation.Valid
 
 @Tag(name = "Authentication", description = "The Authentication API Operations")
 @RestController
@@ -36,6 +36,11 @@ class AuthController(private val authService: AuthService) {
                 )]
             ),
             ApiResponse(
+                responseCode = "400", description = "Bad Request", content = [Content(
+                    schema = Schema(implementation = ErrorDto::class)
+                )]
+            ),
+            ApiResponse(
                 responseCode = "409", description = "User already exists", content = [Content(
                     schema = Schema(implementation = ErrorDto::class)
                 )]
@@ -48,7 +53,7 @@ class AuthController(private val authService: AuthService) {
         ]
     )
     fun signupUser(
-        @Valid @RequestBody signupReq: SignupReq
+        @RequestBody @Validated signupReq: SignupReq
     ): ResponseEntity<Mono<AuthResponse>> = ResponseEntity.status(CREATED).body(
         mono { authService.signupUser(signupReq) }
     )
@@ -75,6 +80,6 @@ class AuthController(private val authService: AuthService) {
         ]
     )
     fun signinUser(
-        @Valid @RequestBody signinReq: SigninReq
+        @RequestBody signinReq: SigninReq
     ): ResponseEntity<Mono<AuthResponse>> = ResponseEntity.ok(mono { authService.signinUser(signinReq) })
 }

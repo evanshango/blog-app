@@ -4,9 +4,12 @@ import com.codewithevans.blog.dtos.ErrorDto
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus.*
 import org.springframework.http.ResponseEntity
+import org.springframework.validation.FieldError
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.bind.support.WebExchangeBindException
 import java.time.LocalDateTime
+
 
 @ControllerAdvice
 class PostServiceExceptionHandler {
@@ -35,9 +38,20 @@ class PostServiceExceptionHandler {
     }
 
     @ExceptionHandler(InternalError::class)
-    fun handleInternalError(e: InternalError): ResponseEntity<ErrorDto>{
+    fun handleInternalError(e: InternalError): ResponseEntity<ErrorDto> {
         logger.error("${e.message} | ${INTERNAL_SERVER_ERROR.value()}")
         val errorDto = ErrorDto(INTERNAL_SERVER_ERROR.name, e.message, LocalDateTime.now())
         return ResponseEntity(errorDto, INTERNAL_SERVER_ERROR)
+    }
+
+    @ExceptionHandler(WebExchangeBindException::class)
+    fun handleException(e: WebExchangeBindException): ResponseEntity<Map<String, String?>>? {
+        val errors: MutableMap<String, String?> = HashMap()
+        e.bindingResult.allErrors.forEach { error ->
+            val fieldName = (error as FieldError).field
+            val errorMessage = error.defaultMessage
+            errors[fieldName] = errorMessage
+        }
+        return ResponseEntity.badRequest().body(errors)
     }
 }

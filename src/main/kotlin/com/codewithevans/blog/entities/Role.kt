@@ -1,6 +1,5 @@
 package com.codewithevans.blog.entities
 
-import com.codewithevans.blog.dtos.RoleDto
 import org.hibernate.annotations.GenericGenerator
 import org.hibernate.annotations.Type
 import java.time.LocalDateTime
@@ -32,12 +31,4 @@ data class Role(
     fun generateCreatedAtValue(){
         this.createdAt = LocalDateTime.now()
     }
-}
-
-fun Role.toRoleDto(): RoleDto{
-    return RoleDto(
-        id = id.toString(),
-        name = name,
-        description = description
-    )
 }

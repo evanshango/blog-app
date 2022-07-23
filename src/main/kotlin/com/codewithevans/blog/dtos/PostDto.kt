@@ -1,12 +1,9 @@
 package com.codewithevans.blog.dtos
 
-import com.codewithevans.blog.entities.BlogUser
-import com.codewithevans.blog.entities.Post
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING
 import com.fasterxml.jackson.annotation.JsonInclude
 import java.time.LocalDateTime
-import java.util.*
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class PostDto(
@@ -15,26 +12,11 @@ data class PostDto(
     val slug: String,
     val content: String,
     val image: String? = null,
-    val author: AuthorDto? = null,
+    val author: String,
+    val authorEmail: String,
     @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     val createdAt: LocalDateTime,
     @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    val updatedAt: LocalDateTime? = null
+    val updatedAt: LocalDateTime? = null,
+    val comments: Int? = 0
 )
-
-fun PostDto.toPost(): Post {
-    return Post(
-        id = UUID.fromString(id),
-        title = title,
-        slug = slug,
-        content = content,
-        user = BlogUser(
-            id = UUID.fromString(author?.id),
-            firstName = author!!.firstName,
-            lastName = author.lastName,
-            email = author.email
-        ),
-        createdAt = createdAt,
-        updatedAt = updatedAt
-    )
-}

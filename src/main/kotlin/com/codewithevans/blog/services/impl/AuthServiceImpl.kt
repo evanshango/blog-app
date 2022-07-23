@@ -1,6 +1,6 @@
 package com.codewithevans.blog.services.impl
 
-import com.codewithevans.blog.entities.BlogUser
+import com.codewithevans.blog.entities.User
 import com.codewithevans.blog.exceptions.ResourceExists
 import com.codewithevans.blog.exceptions.Unauthorized
 import com.codewithevans.blog.repositories.UserRepository
@@ -30,7 +30,7 @@ class AuthServiceImpl(
             throw ResourceExists("User already exists")
         }
 
-        val toCreate = BlogUser(
+        val toCreate = User(
             firstName = signupReq.firstName, lastName = signupReq.lastName, email = signupReq.email,
             password = passwordEncoder.encode(signupReq.password),
             passwordExpiry = LocalDateTime.now().plusDays(passExpiry)

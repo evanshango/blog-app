@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.reactor.mono
 import org.springframework.http.HttpStatus.CREATED
@@ -68,7 +69,7 @@ class PostController(private val postService: PostService) {
                     schema = Schema(implementation = ErrorDto::class)
                 )]
             )
-        ]
+        ], security = [SecurityRequirement(name = "Jwt")]
     )
     fun createPost(
         @Valid @RequestBody postReq: PostReq
@@ -118,7 +119,7 @@ class PostController(private val postService: PostService) {
                     schema = Schema(implementation = ErrorDto::class)
                 )]
             )
-        ]
+        ], security = [SecurityRequirement(name = "Jwt")]
     )
     fun updatePost(
         @PathVariable(name = "postId") postId: UUID, @Valid @RequestBody postReq: PostReq
@@ -141,7 +142,7 @@ class PostController(private val postService: PostService) {
                     schema = Schema(implementation = ErrorDto::class)
                 )]
             )
-        ]
+        ], security = [SecurityRequirement(name = "Jwt")]
     )
     fun deletePost(
         @PathVariable(name = "postId") postId: UUID
