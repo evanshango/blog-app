@@ -8,11 +8,10 @@ import javax.persistence.*
 
 @Entity
 @Table(
-    name = "posts",
-    indexes = [Index(name = "post_indices", columnList = "title, user_id, createdAt, updatedAt")],
-    uniqueConstraints = [UniqueConstraint(columnNames = ["title"])]
+    name = "replies",
+    indexes = [Index(name = "reply_indices", columnList = "reply, user_id, createdAt, updatedAt")]
 )
-data class Post(
+data class Reply(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
@@ -20,23 +19,21 @@ data class Post(
     @Type(type = "uuid-char")
     val id: UUID? = null,
     @Column(nullable = false)
-    var title: String,
+    var reply: String,
     @Column(nullable = false)
-    var slug: String? = null,
-    @Column(nullable = false)
-    var content: String,
-    var approved: Boolean? = false,
-    @Column(nullable = false)
-    var createdAt: LocalDateTime,
+    var createdAt: LocalDateTime? = null,
     var updatedAt: LocalDateTime? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "comment_id", nullable = false)
+    var comment: Comment? = null,
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    var user: User? = null,
+    var user: User? = null
 ) {
     @PrePersist
-    fun generateCreatedAtAndSlugValues() {
-        this.slug = title.lowercase().replace(" ", "-")
+    fun createdAtValue() {
         this.createdAt = LocalDateTime.now()
     }
 }

@@ -1,4 +1,4 @@
-package com.codewithevans.blog.security
+package com.codewithevans.blog.config
 
 import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.core.authority.AuthorityUtils

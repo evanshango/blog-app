@@ -1,5 +1,6 @@
 package com.codewithevans.blog.security
 
+import com.codewithevans.blog.config.TokenProvider
 import org.springframework.http.HttpHeaders
 import org.springframework.security.core.Authentication
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter

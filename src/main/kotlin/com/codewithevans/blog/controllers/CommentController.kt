@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.reactor.mono
 import org.springframework.http.HttpStatus
@@ -51,9 +52,11 @@ class CommentController(private val commentService: CommentService) {
         @RequestParam(name = "pageSize", required = false, defaultValue = "20") pageSize: Int?,
         @RequestParam(name = "orderBy", required = false, defaultValue = "createdAt") orderBy: String?,
         @RequestParam(name = "orderDir", required = false, defaultValue = "desc") orderDir: String?
-    ): ResponseEntity<PaginationDto<CommentDto>> = ResponseEntity.ok(
-        commentService.fetchComments(postId, pageNo, pageSize, orderBy, orderDir)
-    )
+    ): Mono<ResponseEntity<PaginationDto<CommentDto>>> = mono {
+        ResponseEntity.ok(
+            commentService.fetchComments(postId, pageNo, pageSize, orderBy, orderDir)
+        )
+    }
 
     @PostMapping("/{postId}/comments")
     @Operation(
@@ -74,13 +77,16 @@ class CommentController(private val commentService: CommentService) {
                     schema = Schema(implementation = ErrorDto::class)
                 )]
             )
-        ]
+        ], security = [SecurityRequirement(name = "Jwt")]
     )
     fun createComment(
         @PathVariable(name = "postId") postId: UUID, @RequestBody commentReq: CommentReq
-    ): ResponseEntity<Mono<CommentDto>> = ResponseEntity.status(CREATED).body(
-        mono { commentService.createComment(postId, commentReq) }
-    )
+    ): Mono<ResponseEntity<CommentDto>> = mono {
+        ResponseEntity.status(CREATED).body(
+            commentService.createComment(postId, commentReq)
+        )
+    }
+
 
     @GetMapping("/comments/{commentId}")
     @Operation(
@@ -105,7 +111,7 @@ class CommentController(private val commentService: CommentService) {
     )
     fun fetchCommentById(
         @PathVariable(name = "commentId") commentId: UUID
-    ): ResponseEntity<Mono<CommentDto>> = ResponseEntity.ok(mono { commentService.fetchCommentById(commentId) })
+    ): Mono<ResponseEntity<CommentDto>> = mono { ResponseEntity.ok(commentService.fetchCommentById(commentId)) }
 
     @PutMapping("/comments/{commentId}")
     @Operation(
@@ -126,13 +132,12 @@ class CommentController(private val commentService: CommentService) {
                     schema = Schema(implementation = ErrorDto::class)
                 )]
             )
-        ]
+        ], security = [SecurityRequirement(name = "Jwt")]
     )
     fun updateComment(
         @PathVariable(name = "commentId") commentId: UUID, @Valid @RequestBody commentReq: CommentReq
-    ): ResponseEntity<Mono<CommentDto>> = ResponseEntity.ok(
-        mono { commentService.updateComment(commentId, commentReq) }
-    )
+    ): Mono<ResponseEntity<CommentDto>> =
+        mono { ResponseEntity.ok(commentService.updateComment(commentId, commentReq)) }
 
     @DeleteMapping("/comments/{commentId}")
     @Operation(
@@ -151,9 +156,9 @@ class CommentController(private val commentService: CommentService) {
                     schema = Schema(implementation = ErrorDto::class)
                 )]
             )
-        ]
+        ], security = [SecurityRequirement(name = "Jwt")]
     )
     fun deleteComment(
         @PathVariable(name = "commentId") commentId: UUID
-    ): ResponseEntity<Mono<*>> = ResponseEntity(mono { commentService.deleteComment(commentId) }, HttpStatus.NO_CONTENT)
+    ): Mono<ResponseEntity<*>> = mono { ResponseEntity(commentService.deleteComment(commentId), HttpStatus.NO_CONTENT) }
 }

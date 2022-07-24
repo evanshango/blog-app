@@ -7,7 +7,7 @@ import java.util.*
 
 interface PostService {
 
-    fun fetchPosts(pageNo: Int?, pageSize: Int?, orderBy: String?, orderDir: String?): PaginationDto<PostDto>
+    suspend fun fetchPosts(pageNo: Int?, pageSize: Int?, orderBy: String?, orderDir: String?): PaginationDto<PostDto>
 
     suspend fun fetchPostById(postId: UUID): PostDto?
 

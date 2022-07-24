@@ -14,8 +14,6 @@ spring:
     init:
       mode: always
 logging:
-  pattern:
-    console: "%clr(%red(%d{ISO08601}) | %highlight(%-5level) | %boldYellow(${PID} --- %thread) | %green(${spring.application.name}) | %magenta(%logger{5}) | %msg %n)"
   level:
 #    org.springframework: off
     org.hibernate: off
@@ -30,5 +28,8 @@ app:
   admin-user: ${ADMIN_USER:admin@admin.com}
   admin-pass: ${ADMIN_PASS:P@$$w0rd}
   jwt-secret: ${JWT_SECRET:super_secret_key_here}
+  issuer: ${JWT_ISSUER:http://localhost:${server.port}}
   expires-in: ${JWT_EXPIRES_IN:60}
   pass-expiry: ${PASS_EXPIRY:30}
+server:
+  port: ${SERVER_PORT:8080}

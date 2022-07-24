@@ -1,5 +1,6 @@
 package com.codewithevans.blog.requests
 
+import javax.validation.constraints.Email
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Pattern
 
@@ -9,7 +10,7 @@ data class SignupReq(
     @field:NotBlank(message = "LastName address is required")
     val lastName: String,
     @field:NotBlank(message = "Email address is required")
-    @field:Pattern(regexp = "([a-z])+@([a-z])+\\.com", message = "Email should match the pattern xyz@xyz.com")
+    @field:Email(regexp = ".+@.+\\..+", message = "Email should match the patter xyz@xyz.com")
     val email: String,
     @field:NotBlank(message = "Password is required")
     @field:Pattern(

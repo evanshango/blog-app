@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property resource="application.yml"/>
+    <springProperty scope="context" name="appName" source="spring.application.name"/>
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>
+                <![CDATA[%red(%d{ISO8601}) | %highlight(%-5level) | %boldYellow(${PID} --- %thread) | %green(${appName}) | %magenta(%logger{5}) | %msg %n]]>
+            </pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.codewithevans.blog">
+        <appender-ref ref="Console"/>
+    </logger>
+</configuration>

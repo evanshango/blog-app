@@ -46,9 +46,9 @@ class PostController(private val postService: PostService) {
         @RequestParam(name = "pageSize", required = false, defaultValue = "20") pageSize: Int?,
         @RequestParam(name = "orderBy", required = false, defaultValue = "createdAt") orderBy: String?,
         @RequestParam(name = "orderDir", required = false, defaultValue = "desc") orderDir: String?
-    ): ResponseEntity<PaginationDto<PostDto>> = ResponseEntity.ok(
-        postService.fetchPosts(pageNo, pageSize, orderBy, orderDir)
-    )
+    ): Mono<ResponseEntity<PaginationDto<PostDto>>> = mono {
+        ResponseEntity.ok(postService.fetchPosts(pageNo, pageSize, orderBy, orderDir))
+    }
 
     @PostMapping
     @Operation(
@@ -73,7 +73,7 @@ class PostController(private val postService: PostService) {
     )
     fun createPost(
         @Valid @RequestBody postReq: PostReq
-    ): ResponseEntity<Mono<PostDto>> = ResponseEntity.status(CREATED).body(mono { postService.createPost(postReq) })
+    ): Mono<ResponseEntity<PostDto>> = mono { ResponseEntity.status(CREATED).body(postService.createPost(postReq)) }
 
     @GetMapping("/{postId}")
     @Operation(
@@ -98,7 +98,7 @@ class PostController(private val postService: PostService) {
     )
     fun fetchPostById(
         @PathVariable(name = "postId") postId: UUID
-    ): ResponseEntity<Mono<PostDto>> = ResponseEntity.ok(mono { postService.fetchPostById(postId) })
+    ): Mono<ResponseEntity<PostDto>> = mono { ResponseEntity.ok(postService.fetchPostById(postId)) }
 
     @PutMapping("/{postId}")
     @Operation(
@@ -107,6 +107,11 @@ class PostController(private val postService: PostService) {
             ApiResponse(
                 responseCode = "200", description = "Post updated successfully", content = [Content(
                     schema = Schema(implementation = PostDto::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "403", description = "Forbidden", content = [Content(
+                    schema = Schema(implementation = ErrorDto::class)
                 )]
             ),
             ApiResponse(
@@ -123,7 +128,7 @@ class PostController(private val postService: PostService) {
     )
     fun updatePost(
         @PathVariable(name = "postId") postId: UUID, @Valid @RequestBody postReq: PostReq
-    ): ResponseEntity<Mono<PostDto>> = ResponseEntity.ok(mono { postService.updatePost(postId, postReq) })
+    ): Mono<ResponseEntity<PostDto>> = mono { ResponseEntity.ok(postService.updatePost(postId, postReq)) }
 
     @DeleteMapping("/{postId}")
     @Operation(
@@ -131,6 +136,11 @@ class PostController(private val postService: PostService) {
         responses = [
             ApiResponse(
                 responseCode = "204", description = "Post deleted successfully", content = [Content()]
+            ),
+            ApiResponse(
+                responseCode = "403", description = "Forbidden", content = [Content(
+                    schema = Schema(implementation = ErrorDto::class)
+                )]
             ),
             ApiResponse(
                 responseCode = "404", description = "Post with provided postId not found", content = [Content(
@@ -146,5 +156,5 @@ class PostController(private val postService: PostService) {
     )
     fun deletePost(
         @PathVariable(name = "postId") postId: UUID
-    ): ResponseEntity<Mono<*>> = ResponseEntity(mono { postService.deletePost(postId) }, NO_CONTENT)
+    ): Mono<ResponseEntity<*>> = mono { ResponseEntity(postService.deletePost(postId), NO_CONTENT) }
 }

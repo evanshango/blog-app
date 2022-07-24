@@ -9,13 +9,16 @@ import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactor.mono
-import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.CREATED
+import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
-import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.*
 import javax.validation.Valid
@@ -39,15 +42,21 @@ class RoleController(private val roleService: RoleService) {
             )
         ]
     )
-    fun fetchRoles(): ResponseEntity<Flux<RoleDto>> = ResponseEntity.ok(roleService.getRoles())
+    fun fetchRoles(): ResponseEntity<Flow<RoleDto>> = ResponseEntity.ok().body(roleService.getRoles())
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(
         summary = "Endpoint for Creating a role",
         responses = [
             ApiResponse(
                 responseCode = "201", description = "Role created successfully", content = [Content(
                     schema = Schema(implementation = RoleDto::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "403", description = "Operation not permitted", content = [Content(
+                    schema = Schema(implementation = ErrorDto::class)
                 )]
             ),
             ApiResponse(
@@ -60,13 +69,11 @@ class RoleController(private val roleService: RoleService) {
                     schema = Schema(implementation = ErrorDto::class)
                 )]
             )
-        ]
+        ], security = [SecurityRequirement(name = "Jwt")]
     )
     fun createRole(
         @Valid @RequestBody roleReq: RoleReq
-    ): ResponseEntity<Mono<RoleDto>> = ResponseEntity.status(HttpStatus.CREATED).body(
-        mono { roleService.createRole(roleReq) }
-    )
+    ): Mono<ResponseEntity<RoleDto>> = mono { ResponseEntity.status(CREATED).body(roleService.createRole(roleReq)) }
 
     @GetMapping("/{roleId}")
     @Operation(
@@ -91,9 +98,10 @@ class RoleController(private val roleService: RoleService) {
     )
     fun fetchRoleById(
         @PathVariable(name = "roleId") roleId: UUID
-    ): ResponseEntity<Mono<RoleDto>> = ResponseEntity.ok(mono { roleService.fetchRoleById(roleId) })
+    ): Mono<ResponseEntity<RoleDto>> = mono { ResponseEntity.ok(roleService.fetchRoleById(roleId)) }
 
     @PutMapping("/{roleId}")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(
         summary = "Endpoint for updating an existing role",
         responses = [
@@ -103,6 +111,11 @@ class RoleController(private val roleService: RoleService) {
                 )]
             ),
             ApiResponse(
+                responseCode = "403", description = "Operation not permitted", content = [Content(
+                    schema = Schema(implementation = ErrorDto::class)
+                )]
+            ),
+            ApiResponse(
                 responseCode = "404", description = "Role with provided roleId not found", content = [Content(
                     schema = Schema(implementation = ErrorDto::class)
                 )]
@@ -112,13 +125,14 @@ class RoleController(private val roleService: RoleService) {
                     schema = Schema(implementation = ErrorDto::class)
                 )]
             )
-        ]
+        ], security = [SecurityRequirement(name = "Jwt")]
     )
     fun updateRole(
         @PathVariable(name = "roleId") roleId: UUID, @Valid @RequestBody roleReq: RoleReq
-    ): ResponseEntity<Mono<RoleDto>> = ResponseEntity.ok(mono { roleService.updateRole(roleId, roleReq) })
+    ): Mono<ResponseEntity<RoleDto>> = mono { ResponseEntity.ok(roleService.updateRole(roleId, roleReq)) }
 
     @DeleteMapping("/{roleId}")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(
         summary = "Endpoint for deleting an existing role",
         responses = [
@@ -126,6 +140,11 @@ class RoleController(private val roleService: RoleService) {
                 responseCode = "204", description = "Role deleted successfully", content = [Content()]
             ),
             ApiResponse(
+                responseCode = "403", description = "Operation not permitted", content = [Content(
+                    schema = Schema(implementation = ErrorDto::class)
+                )]
+            ),
+            ApiResponse(
                 responseCode = "404", description = "Role with provided roleId not found", content = [Content(
                     schema = Schema(implementation = ErrorDto::class)
                 )]
@@ -135,9 +154,9 @@ class RoleController(private val roleService: RoleService) {
                     schema = Schema(implementation = ErrorDto::class)
                 )]
             )
-        ]
+        ], security = [SecurityRequirement(name = "Jwt")]
     )
     fun deleteRole(
         @PathVariable(name = "roleId") roleId: UUID
-    ): ResponseEntity<Mono<*>> = ResponseEntity(mono { roleService.deleteRole(roleId) }, HttpStatus.NO_CONTENT)
+    ): Mono<ResponseEntity<*>> = mono { ResponseEntity(roleService.deleteRole(roleId), NO_CONTENT) }
 }

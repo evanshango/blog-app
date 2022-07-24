@@ -1,6 +1,5 @@
 package com.codewithevans.blog.entities
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import org.hibernate.annotations.GenericGenerator
 import org.hibernate.annotations.Type
 import java.time.LocalDateTime
@@ -42,14 +41,6 @@ data class User(
         inverseJoinColumns = [JoinColumn(name = "role_id", referencedColumnName = "id")]
     )
     var roles: Set<Role>? = HashSet(),
-
-    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
-    @JsonIgnore
-    var posts: Set<Post>? = HashSet(),
-
-    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
-    @JsonIgnore
-    var comments: Set<Comment>? = HashSet()
 ) {
     @PrePersist
     fun generateCreatedAtValue() {

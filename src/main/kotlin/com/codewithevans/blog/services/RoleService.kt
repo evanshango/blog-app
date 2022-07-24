@@ -2,12 +2,12 @@ package com.codewithevans.blog.services
 
 import com.codewithevans.blog.dtos.RoleDto
 import com.codewithevans.blog.requests.RoleReq
-import reactor.core.publisher.Flux
-import java.util.UUID
+import kotlinx.coroutines.flow.Flow
+import java.util.*
 
 interface RoleService {
 
-    fun getRoles(): Flux<RoleDto>
+    fun getRoles(): Flow<RoleDto>
 
     suspend fun fetchRoleById(roleId: UUID): RoleDto
 

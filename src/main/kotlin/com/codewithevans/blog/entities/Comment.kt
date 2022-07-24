@@ -21,7 +21,7 @@ data class Comment(
     @Column(nullable = false)
     var comment: String,
     @Column(nullable = false)
-    var createdAt: LocalDateTime,
+    var createdAt: LocalDateTime? = null,
     var updatedAt: LocalDateTime? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)

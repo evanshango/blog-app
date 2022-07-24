@@ -1,7 +1,9 @@
 package com.codewithevans.blog.services.impl
 
-import com.codewithevans.blog.entities.User
 import com.codewithevans.blog.entities.Role
+import com.codewithevans.blog.entities.User
+import com.codewithevans.blog.helpers.Constants.admin_role
+import com.codewithevans.blog.helpers.Constants.user_role
 import com.codewithevans.blog.repositories.RoleRepository
 import com.codewithevans.blog.repositories.UserRepository
 import com.codewithevans.blog.services.DataLoader
@@ -13,7 +15,6 @@ import org.springframework.http.HttpStatus.CREATED
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
-import java.util.*
 
 @Service
 class DataLoaderImpl(
@@ -27,8 +28,8 @@ class DataLoaderImpl(
         val roles = roleRepository.findAll().toSet()
         if (roles.isEmpty()) {
             val newRoles = listOf(
-                Role(name = "admin".uppercase(Locale.getDefault()), description = "The default admin role"),
-                Role(name = "user".uppercase(Locale.getDefault()), description = "The default user role")
+                Role(name = admin_role.uppercase(), description = "The default admin role"),
+                Role(name = user_role.uppercase(), description = "The default user role")
             )
             roleRepository.saveAll(newRoles)
         }
@@ -38,10 +39,11 @@ class DataLoaderImpl(
         val user = userRepository.findByEmailIgnoreCase(email)
 
         if (user == null) {
-            roleRepository.findByNameIgnoreCase("admin")?.let {
+            roleRepository.findByNameIgnoreCase(admin_role)?.let {
                 val adminUser = User(
                     firstName = "Mighty", lastName = "Admin", email = email, password = encoder.encode(pass),
-                    passwordExpiry = LocalDateTime.now().plusDays(passExpiry), roles = setOf(it)
+                    passwordExpiry = LocalDateTime.now().plusDays(passExpiry), roles = setOf(it),
+                    emailConfirmed = true, enableNotifications = true
                 )
                 userRepository.save(adminUser)
                 logger.info("Default user seed was successful | {}", CREATED.value())

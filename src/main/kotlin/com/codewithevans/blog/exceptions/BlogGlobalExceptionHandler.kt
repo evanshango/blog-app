@@ -10,9 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.support.WebExchangeBindException
 import java.time.LocalDateTime
 
-
 @ControllerAdvice
-class PostServiceExceptionHandler {
+class BlogGlobalExceptionHandler {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -30,8 +29,23 @@ class PostServiceExceptionHandler {
         return ResponseEntity(errorDto, CONFLICT)
     }
 
+    @ExceptionHandler(NotPermitted::class)
+    fun handleResourceExists(e: NotPermitted): ResponseEntity<ErrorDto> {
+        logger.warn("${e.message} | ${CONFLICT.value()}")
+        val errorDto = ErrorDto(FORBIDDEN.name, e.message, LocalDateTime.now())
+        return ResponseEntity(errorDto, FORBIDDEN)
+    }
+
     @ExceptionHandler(Unauthorized::class)
     fun handleResourceExists(e: Unauthorized): ResponseEntity<ErrorDto> {
+        logger.warn("${e.message} | ${UNAUTHORIZED.value()}")
+        val errorDto = ErrorDto(UNAUTHORIZED.name, e.message, LocalDateTime.now())
+        return ResponseEntity(errorDto, UNAUTHORIZED)
+    }
+
+    @ExceptionHandler(InvalidBearerToken::class)
+    fun handleResourceExists(e: InvalidBearerToken): ResponseEntity<ErrorDto> {
+        println("called ${e.message}")
         logger.warn("${e.message} | ${UNAUTHORIZED.value()}")
         val errorDto = ErrorDto(UNAUTHORIZED.name, e.message, LocalDateTime.now())
         return ResponseEntity(errorDto, UNAUTHORIZED)

@@ -54,9 +54,9 @@ class AuthController(private val authService: AuthService) {
     )
     fun signupUser(
         @RequestBody @Validated signupReq: SignupReq
-    ): ResponseEntity<Mono<AuthResponse>> = ResponseEntity.status(CREATED).body(
-        mono { authService.signupUser(signupReq) }
-    )
+    ): Mono<ResponseEntity<AuthResponse>> = mono {
+        ResponseEntity.status(CREATED).body(authService.signupUser(signupReq))
+    }
 
     @PostMapping("/signin")
     @Operation(
@@ -81,5 +81,5 @@ class AuthController(private val authService: AuthService) {
     )
     fun signinUser(
         @RequestBody signinReq: SigninReq
-    ): ResponseEntity<Mono<AuthResponse>> = ResponseEntity.ok(mono { authService.signinUser(signinReq) })
+    ): Mono<ResponseEntity<AuthResponse>> = mono { ResponseEntity.ok(authService.signinUser(signinReq)) }
 }

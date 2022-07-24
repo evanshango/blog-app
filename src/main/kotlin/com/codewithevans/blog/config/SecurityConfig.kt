@@ -3,9 +3,8 @@ package com.codewithevans.blog.config
 import com.codewithevans.blog.security.JwtAuthManager
 import com.codewithevans.blog.security.JwtServerAuthConverter
 import org.springframework.context.annotation.Bean
-import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
-import org.springframework.http.HttpStatus
+import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder
 import org.springframework.security.config.web.server.ServerHttpSecurity
@@ -13,9 +12,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter
-import reactor.core.publisher.Mono
 
 @EnableWebFluxSecurity
+@EnableReactiveMethodSecurity
 class SecurityConfig {
 
     companion object {
@@ -34,23 +33,17 @@ class SecurityConfig {
 
     @Bean
     fun securityWebFilterChain(
-        converter: JwtServerAuthConverter, http: ServerHttpSecurity, authManager: JwtAuthManager
+        converter: JwtServerAuthConverter, http: ServerHttpSecurity, authManager: JwtAuthManager,
+        accessDeniedHandler: AccessDeniedHandler, entryPoint: AuthEntryPointHandler, failureHandler: AuthFailureHandler
     ): SecurityWebFilterChain {
         val filter = AuthenticationWebFilter(authManager)
         filter.setServerAuthenticationConverter(converter)
+        filter.setAuthenticationFailureHandler(failureHandler)
 
-        return http
-            .exceptionHandling().authenticationEntryPoint { exchange, _ ->
-                Mono.fromRunnable {
-                    exchange.response.statusCode = HttpStatus.UNAUTHORIZED
-                    exchange.response.headers.set(HttpHeaders.WWW_AUTHENTICATE, "Bearer")
-                }
-            }.and()
-            .csrf().disable().cors().disable().formLogin().disable().httpBasic().disable()
-            .authorizeExchange().pathMatchers(*OPEN_URLS).permitAll()
-            .pathMatchers(HttpMethod.GET, *GET_OPEN_URLS).permitAll()
-            .anyExchange().authenticated().and()
-            .addFilterAt(filter, SecurityWebFiltersOrder.AUTHENTICATION)
-            .build()
+        return http.csrf().disable().cors().disable().formLogin().disable().httpBasic().disable()
+            .exceptionHandling().authenticationEntryPoint(entryPoint)
+            .accessDeniedHandler(accessDeniedHandler).and().authorizeExchange()
+            .pathMatchers(*OPEN_URLS).permitAll().pathMatchers(HttpMethod.GET, *GET_OPEN_URLS).permitAll()
+            .anyExchange().authenticated().and().addFilterAt(filter, SecurityWebFiltersOrder.AUTHENTICATION).build()
     }
 }
