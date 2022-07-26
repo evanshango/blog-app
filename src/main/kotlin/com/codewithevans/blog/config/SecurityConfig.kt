@@ -24,7 +24,7 @@ class SecurityConfig {
         )
 
         val GET_OPEN_URLS = arrayOf(
-            "/api/v1/roles/**", "/api/v1/posts/**", "/api/v1/comments/**"
+            "/api/v1/roles/**", "/api/v1/posts/**", "/api/v1/comments/**", "/api/v1/replies", "/api/v1/users"
         )
     }
 

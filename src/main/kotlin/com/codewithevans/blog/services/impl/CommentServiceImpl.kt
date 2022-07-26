@@ -5,6 +5,7 @@ import com.codewithevans.blog.dtos.PaginationDto
 import com.codewithevans.blog.entities.Comment
 import com.codewithevans.blog.exceptions.NotPermitted
 import com.codewithevans.blog.exceptions.ResourceNotFound
+import com.codewithevans.blog.helpers.Constants.getPageable
 import com.codewithevans.blog.helpers.Utils
 import com.codewithevans.blog.helpers.toCommentDto
 import com.codewithevans.blog.repositories.CommentRepository
@@ -15,8 +16,6 @@ import com.codewithevans.blog.security.JwtService
 import com.codewithevans.blog.services.CommentService
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.*
@@ -29,13 +28,11 @@ class CommentServiceImpl(
     override fun fetchComments(
         postId: UUID, pageNo: Int?, pageSize: Int?, orderBy: String?, orderDir: String?
     ): PaginationDto<CommentDto> {
-        val page = if (pageNo!! > 0) pageNo - 1 else 0
-        val sort = if (orderDir?.equals(Sort.Direction.ASC.name, true) == true)
-            Sort.by(orderBy).ascending() else Sort.by(orderBy).descending()
+        val pageable = getPageable(pageNo = pageNo, pageSize = pageSize, orderDir = orderDir, orderBy = orderBy)
 
         val existingPost = postRepository.findById(postId).orElseThrow { ResourceNotFound("Post with id $postId") }
 
-        val commentContent = commentRepository.findAllByPost(existingPost, PageRequest.of(page, pageSize!!, sort))
+        val commentContent = commentRepository.findAllByPost(existingPost, pageable)
 
         return PaginationDto(
             pageNo = commentContent.number + 1,

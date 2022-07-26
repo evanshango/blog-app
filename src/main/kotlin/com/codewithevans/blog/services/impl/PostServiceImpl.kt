@@ -6,6 +6,7 @@ import com.codewithevans.blog.entities.Post
 import com.codewithevans.blog.exceptions.NotPermitted
 import com.codewithevans.blog.exceptions.ResourceExists
 import com.codewithevans.blog.exceptions.ResourceNotFound
+import com.codewithevans.blog.helpers.Constants.getPageable
 import com.codewithevans.blog.helpers.Utils
 import com.codewithevans.blog.helpers.toPostDto
 import com.codewithevans.blog.repositories.CommentRepository
@@ -17,8 +18,6 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.*
@@ -35,11 +34,9 @@ class PostServiceImpl(private val jwtService: JwtService, private val utils: Uti
     override suspend fun fetchPosts(
         pageNo: Int?, pageSize: Int?, orderBy: String?, orderDir: String?
     ): PaginationDto<PostDto> {
-        val page = if (pageNo!! > 0) pageNo - 1 else 0
-        val sort = if (orderDir?.equals(Sort.Direction.ASC.name, true) == true)
-            Sort.by(orderBy).ascending() else Sort.by(orderBy).descending()
+        val pageable = getPageable(pageNo = pageNo, pageSize = pageSize, orderDir = orderDir, orderBy = orderBy)
 
-        val postContent = postRepository.findAll(PageRequest.of(page, pageSize!!, sort))
+        val postContent = postRepository.findAll(pageable)
 
         return PaginationDto(
             pageNo = postContent.number + 1,
@@ -99,9 +96,7 @@ class PostServiceImpl(private val jwtService: JwtService, private val utils: Uti
         val existing = checkPostAndUser(postId, "delete")
 
         commentRepository.findAllByPost(existing).also { comments ->
-            if (comments.isNotEmpty()){
-                comments.forEach { commentRepository.delete(it) }
-            }
+            if (comments.isNotEmpty()) comments.forEach { commentRepository.delete(it) }
         }
 
         return@withContext postRepository.delete(existing)

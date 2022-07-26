@@ -6,7 +6,7 @@ import java.time.LocalDateTime
 data class RoleDto(
     val id: String,
     val name: String,
-    val description: String,
+    val description: String? = null,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    val createdAt: LocalDateTime
+    val createdAt: LocalDateTime? = null
 )

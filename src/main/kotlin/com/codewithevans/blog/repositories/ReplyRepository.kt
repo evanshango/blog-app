@@ -2,6 +2,7 @@ package com.codewithevans.blog.repositories
 
 import com.codewithevans.blog.entities.Comment
 import com.codewithevans.blog.entities.Reply
+import com.codewithevans.blog.entities.User
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
@@ -14,4 +15,7 @@ interface ReplyRepository : JpaRepository<Reply, UUID> {
     fun findAllByComment(comment: Comment): List<Reply>
 
     fun findAllByComment(comment: Comment, pageable: Pageable): Page<Reply>
+    fun countAllByUser(user: User): Int
+
+    fun findAllByUser(user: User): List<Reply>
 }

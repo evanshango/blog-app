@@ -12,7 +12,7 @@ import org.springframework.boot.runApplication
 @SpringBootApplication
 @OpenAPIDefinition(
     info = Info(
-        title = "Blog Application",
+        title = "BLOG APP",
         version = "1.0",
         description = "API Documentation for Blog Application"
     ),

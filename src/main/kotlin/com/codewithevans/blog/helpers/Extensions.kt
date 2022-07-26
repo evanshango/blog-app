@@ -1,13 +1,7 @@
 package com.codewithevans.blog.helpers
 
-import com.codewithevans.blog.dtos.CommentDto
-import com.codewithevans.blog.dtos.PostDto
-import com.codewithevans.blog.dtos.ReplyDto
-import com.codewithevans.blog.dtos.RoleDto
-import com.codewithevans.blog.entities.Comment
-import com.codewithevans.blog.entities.Post
-import com.codewithevans.blog.entities.Reply
-import com.codewithevans.blog.entities.Role
+import com.codewithevans.blog.dtos.*
+import com.codewithevans.blog.entities.*
 
 fun Role.toRoleDto(): RoleDto {
     return RoleDto(
@@ -52,5 +46,19 @@ fun Reply.toReplyDto(): ReplyDto {
         authorEmail = user!!.email,
         createdAt = createdAt!!,
         updatedAt = updatedAt
+    )
+}
+
+fun User.toUserDto(postCount: Int, commentCount: Int, replyCount: Int): UserDto {
+    return UserDto(
+        id = id!!,
+        firstName = firstName,
+        lastName = lastName,
+        email = email,
+        roles = roles.let { roleSet -> roleSet?.map { it.toRoleDto() }?.toList() },
+        posts = postCount,
+        comments = commentCount,
+        replies = replyCount,
+        createdAt = createdAt
     )
 }

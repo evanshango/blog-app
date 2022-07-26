@@ -5,6 +5,7 @@ import com.codewithevans.blog.dtos.ReplyDto
 import com.codewithevans.blog.entities.Reply
 import com.codewithevans.blog.exceptions.NotPermitted
 import com.codewithevans.blog.exceptions.ResourceNotFound
+import com.codewithevans.blog.helpers.Constants.getPageable
 import com.codewithevans.blog.helpers.Utils
 import com.codewithevans.blog.helpers.toReplyDto
 import com.codewithevans.blog.repositories.CommentRepository
@@ -14,8 +15,6 @@ import com.codewithevans.blog.security.JwtService
 import com.codewithevans.blog.services.ReplyService
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.*
@@ -29,15 +28,13 @@ class ReplyServiceImpl(
     override fun fetchReplies(
         commentId: UUID, pageNo: Int?, pageSize: Int?, orderBy: String?, orderDir: String?
     ): PaginationDto<ReplyDto> {
-        val page = if (pageNo!! > 0) pageNo - 1 else 0
-        val sort = if (orderDir?.equals(Sort.Direction.ASC.name, true) == true)
-            Sort.by(orderBy).ascending() else Sort.by(orderBy).descending()
+        val pageable = getPageable(pageNo = pageNo, pageSize = pageSize, orderDir = orderDir, orderBy = orderBy)
 
         val existingComment = commentRepository.findById(commentId).orElseThrow {
             ResourceNotFound("Comment with id $commentId")
         }
 
-        val replyContent = replyRepository.findAllByComment(existingComment, PageRequest.of(page, pageSize!!, sort))
+        val replyContent = replyRepository.findAllByComment(existingComment, pageable)
 
         return PaginationDto(
             pageNo = replyContent.number + 1,
