@@ -30,21 +30,28 @@ class BlogGlobalExceptionHandler {
     }
 
     @ExceptionHandler(NotPermitted::class)
-    fun handleResourceExists(e: NotPermitted): ResponseEntity<ErrorDto> {
+    fun handleNotPermitted(e: NotPermitted): ResponseEntity<ErrorDto> {
         logger.warn("${e.message} | ${CONFLICT.value()}")
         val errorDto = ErrorDto(FORBIDDEN.name, e.message, LocalDateTime.now())
         return ResponseEntity(errorDto, FORBIDDEN)
     }
 
+    @ExceptionHandler(NotAcceptable::class)
+    fun handleNotAcceptable(e: NotAcceptable): ResponseEntity<ErrorDto> {
+        logger.warn("${e.message} | ${NOT_ACCEPTABLE.value()}")
+        val errorDto = ErrorDto(NOT_ACCEPTABLE.name, e.message, LocalDateTime.now())
+        return ResponseEntity(errorDto, NOT_ACCEPTABLE)
+    }
+
     @ExceptionHandler(Unauthorized::class)
-    fun handleResourceExists(e: Unauthorized): ResponseEntity<ErrorDto> {
+    fun handleUnauthorized(e: Unauthorized): ResponseEntity<ErrorDto> {
         logger.warn("${e.message} | ${UNAUTHORIZED.value()}")
         val errorDto = ErrorDto(UNAUTHORIZED.name, e.message, LocalDateTime.now())
         return ResponseEntity(errorDto, UNAUTHORIZED)
     }
 
     @ExceptionHandler(InvalidBearerToken::class)
-    fun handleResourceExists(e: InvalidBearerToken): ResponseEntity<ErrorDto> {
+    fun handleInvalidToken(e: InvalidBearerToken): ResponseEntity<ErrorDto> {
         println("called ${e.message}")
         logger.warn("${e.message} | ${UNAUTHORIZED.value()}")
         val errorDto = ErrorDto(UNAUTHORIZED.name, e.message, LocalDateTime.now())

@@ -15,7 +15,7 @@ spring:
       mode: always
 logging:
   level:
-#    org.springframework: off
+    org.springframework: off
     org.hibernate: off
     com.zaxxer: off
     com.codewithevans: [ DEBUG, ERROR, WARN, INFO ]

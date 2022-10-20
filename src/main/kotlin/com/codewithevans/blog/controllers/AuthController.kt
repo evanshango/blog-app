@@ -1,9 +1,11 @@
 package com.codewithevans.blog.controllers
 
 import com.codewithevans.blog.dtos.ErrorDto
+import com.codewithevans.blog.requests.PasswordReq
 import com.codewithevans.blog.requests.SigninReq
 import com.codewithevans.blog.requests.SignupReq
 import com.codewithevans.blog.responses.AuthResponse
+import com.codewithevans.blog.responses.PassResponse
 import com.codewithevans.blog.services.AuthService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
@@ -73,6 +75,11 @@ class AuthController(private val authService: AuthService) {
                 )]
             ),
             ApiResponse(
+                responseCode = "409", description = "Not Permitted", content = [Content(
+                    schema = Schema(implementation = ErrorDto::class)
+                )]
+            ),
+            ApiResponse(
                 responseCode = "500", description = "Internal server error", content = [Content(
                     schema = Schema(implementation = ErrorDto::class)
                 )]
@@ -82,4 +89,39 @@ class AuthController(private val authService: AuthService) {
     fun signinUser(
         @RequestBody signinReq: SigninReq
     ): Mono<ResponseEntity<AuthResponse>> = mono { ResponseEntity.ok(authService.signinUser(signinReq)) }
+
+    @PostMapping("/password-reset")
+    @Operation(
+        summary = "Reset an existing user's password",
+        responses = [
+            ApiResponse(
+                responseCode = "200", description = "Password reset Successful", content = [Content(
+                    schema = Schema(implementation = PassResponse::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400", description = "Bad Request", content = [Content(
+                    schema = Schema(implementation = ErrorDto::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "404", description = "Not Found", content = [Content(
+                    schema = Schema(implementation = ErrorDto::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "406", description = "Not Acceptable", content = [Content(
+                    schema = Schema(implementation = ErrorDto::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "500", description = "Internal server error", content = [Content(
+                    schema = Schema(implementation = ErrorDto::class)
+                )]
+            )
+        ]
+    )
+    fun resetPassword(
+        @RequestBody @Validated passwordReq: PasswordReq
+    ): Mono<ResponseEntity<PassResponse>> = mono { ResponseEntity.ok(authService.resetPassword(passwordReq)) }
 }

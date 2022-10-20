@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  blog-app:
+    image: evanshango/blog-app
+    container_name: blog-app
+    restart: always
+    ports:
+      - '8090:8090'
+    environment:
+      - DB_URL=jdbc:mysql://localhost:3306/blog_app?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+      - DB_USER=root
+      - DB_PASS=Dev@Null
+      - ADMIN_USER=admin@admin.com
+      - ADMIN_PASS=P@$$w0rd
+      - JWT_SECRET=super-secret-key-here
+      - JWT_ISSUER=localhost:8090
+      - JWT_EXPIRES_IN=60
+      - PASS_EXPIRY=30
+      - SERVER_PORT=8090

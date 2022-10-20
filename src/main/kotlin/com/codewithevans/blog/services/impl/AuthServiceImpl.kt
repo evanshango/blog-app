@@ -1,14 +1,15 @@
 package com.codewithevans.blog.services.impl
 
 import com.codewithevans.blog.entities.User
-import com.codewithevans.blog.exceptions.ResourceExists
-import com.codewithevans.blog.exceptions.Unauthorized
+import com.codewithevans.blog.exceptions.*
 import com.codewithevans.blog.helpers.Constants
 import com.codewithevans.blog.repositories.RoleRepository
 import com.codewithevans.blog.repositories.UserRepository
+import com.codewithevans.blog.requests.PasswordReq
 import com.codewithevans.blog.requests.SigninReq
 import com.codewithevans.blog.requests.SignupReq
 import com.codewithevans.blog.responses.AuthResponse
+import com.codewithevans.blog.responses.PassResponse
 import com.codewithevans.blog.security.JwtService
 import com.codewithevans.blog.services.AuthService
 import kotlinx.coroutines.Dispatchers.IO
@@ -16,7 +17,7 @@ import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.HttpStatus.CREATED
+import org.springframework.http.HttpStatus.*
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -66,6 +67,9 @@ class AuthServiceImpl(@Value("\${app.pass-expiry}") val passExpiry: Long) : Auth
         val user = userRepository.findByEmailIgnoreCase(signinReq.email)
 
         user?.let {
+            if (LocalDateTime.now().isAfter(it.passwordExpiry)) {
+                throw NotPermitted("Your password has expired. Please reset")
+            }
             if (encoder.matches(signinReq.password, it.password)) {
                 token = jwtService.generateToken(it).token
                 return@let
@@ -75,6 +79,28 @@ class AuthServiceImpl(@Value("\${app.pass-expiry}") val passExpiry: Long) : Auth
         }
         return@withContext AuthResponse(
             name = "${user!!.firstName} ${user.lastName}", email = user.email, token = token
+        )
+    }
+
+    override suspend fun resetPassword(passwordReq: PasswordReq): PassResponse? = withContext(IO) {
+        val user = userRepository.findByEmailIgnoreCase(passwordReq.email) ?: throw ResourceNotFound(
+            "User with email '${passwordReq.email}' not found"
+        )
+
+        if (passwordReq.oldPassword.isNotEmpty()) {
+            if (!encoder.matches(passwordReq.oldPassword, user.password)) throw NotAcceptable(
+                "The old password does not not match what we have in our database"
+            )
+        }
+
+        user.password = encoder.encode(passwordReq.newPassword)
+        user.passwordExpiry = LocalDateTime.now().plusDays(passExpiry)
+        user.updatedAt = LocalDateTime.now()
+
+        userRepository.save(user)
+
+        return@withContext PassResponse(
+            status = OK.toString(), message = "Password reset successful", timeStamp = LocalDateTime.now()
         )
     }
 }
